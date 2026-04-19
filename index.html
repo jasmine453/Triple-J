@@ -1942,7 +1942,6 @@ button:active { opacity: 0.85; }
 .bg-s05c { background-image: url('images/shot_15.webp');    filter: brightness(0.5) saturate(0.3); }
 /* S06 木屋内 */
 .bg-s06  { background-image: url('images/shot_16.webp');    filter: brightness(0.6) saturate(0.45); }
-.bg-s06b { background-image: url('images/shot_17.webp');   filter: brightness(0.52) saturate(0.42) contrast(1.05); }
 /* S07 深林落单 */
 .bg-s07a { background-image: url('images/highlight.webp');    filter: brightness(0.5) saturate(0.35); }
 .bg-s07_chop { background-image: url('images/shot_forest_chop.webp'); filter: brightness(0.5) saturate(0.35); background-size: contain !important; }
@@ -1994,7 +1993,7 @@ button:active { opacity: 0.85; }
 .bg-s01::after, .bg-s02a::after, .bg-s02b::after,
 .bg-s03a::after, .bg-s03b::after, .bg-s03c::after,
 .bg-s04a::after, .bg-s04b::after, .bg-s04c::after, .bg-s04d::after,
-.bg-s05a::after, .bg-s05b::after, .bg-s05c::after, .bg-s06::after, .bg-s06b::after,
+.bg-s05a::after, .bg-s05b::after, .bg-s05c::after, .bg-s06::after,
 .bg-s07a::after, .bg-s07b::after, .bg-s07c::after {
   content: '';
   position: absolute;
@@ -2924,7 +2923,6 @@ const SCENE_LENS_DATA = {
   'bg-s05b': { src: 'images/shot_14.webp', filter: 'brightness(0.55) saturate(0.35)' },
   'bg-s05c': { src: 'images/shot_15.webp', filter: 'brightness(0.5) saturate(0.3)' },
   'bg-s06': { src: 'images/shot_16.webp', filter: 'brightness(0.6) saturate(0.45)' },
-  'bg-s06b': { src: 'images/shot_17.webp', filter: 'brightness(0.52) saturate(0.42) contrast(1.05)' },
   'bg-s07a': { src: 'images/highlight.webp', filter: 'brightness(0.5) saturate(0.35)' },
   'bg-s07_chop': { src: 'images/shot_forest_chop.webp', filter: 'brightness(0.5) saturate(0.35)' },
   'bg-s07b': { src: 'images/shot_19.webp', filter: 'brightness(0.5) saturate(0.35)' },
@@ -3985,30 +3983,36 @@ Scenes.s05 = {
   },
 
   triggerTrap() {
-    Audio.metalClang();
-    Effects.shake(700);
-    SceneManager.setBgCut('bg-img bg-s05b'); // 捕兽夹触发
-    Effects.horrorFlash('咔\n嚓', 900);
-
     Dialogue.show([
-      { speaker: '', text: '石头落下的瞬间——', speed: 80 },
-      { speaker: '', text: '咔嚓。', speed: 120 },
-      { speaker: '', text: '捕兽夹从泥土里弹起来，合拢的声音在黑暗里回荡。', speed: 50 },
-      { speaker: '', text: '门口埋着捕兽夹。', speed: 60 },
-      { speaker: '', text: '你退了半步。', speed: 80 },
+      { speaker: '', text: '石头落下的瞬间——', speed: 80 }
     ], () => {
-      this.trapTriggered = true;
-      this.openDoor();
+      Audio.metalClang();
+      Effects.shake(700);
+      SceneManager.setBgCut('bg-img bg-s05b'); // 捕兽夹触发
+      Effects.horrorFlash('咔\n嚓', 900);
+
+      Dialogue.show([
+        { speaker: '', text: '咔嚓。', speed: 120 },
+        { speaker: '', text: '捕兽夹从泥土里弹起来，合拢的声音在黑暗里回荡。', speed: 50 },
+        { speaker: '', text: '门口埋着捕兽夹。', speed: 60 },
+        { speaker: '', text: '你退了半步。', speed: 80 },
+      ], () => {
+        this.trapTriggered = true;
+        this.openDoor();
+      });
     });
   },
 
   openDoor() {
     Dialogue.show([
-      { speaker: '', text: '铁声停止之后，是更长的沉默。', speed: 55 },
-      { speaker: '', text: '这时候，木门从里面缓缓开了。', speed: 65 },
+      { speaker: '', text: '铁声停止之后，是更长的沉默。', speed: 55 }
     ], () => {
-      SceneManager.setBgCut('bg-img bg-s05c'); // 门口出现小孩 shot_15.png
-      this.showBoy();
+      SceneManager.setBgCut('bg-img bg-s05c'); // 门口出现小孩 shot_15.webp
+      Dialogue.show([
+        { speaker: '', text: '这时候，木门从里面缓缓开了。', speed: 65 },
+      ], () => {
+        this.showBoy();
+      });
     });
   },
 
@@ -4076,17 +4080,7 @@ Scenes.s06 = {
   enter() {
     this._boyTalked = false;
     SceneManager.setBg('bg-img bg-s06');
-    setTimeout(() => this.runCabinIntroLens(), 480);
-  },
-
-  /** 进屋后先给对峙近景镜头（scene-lens），再对白，再探索 */
-  async runCabinIntroLens() {
-    if (State.scene !== 's06') return;
-    SceneManager.setBg('bg-img bg-s06b');
-    await new Promise((r) => setTimeout(r, 2800));
-    if (State.scene !== 's06') return;
-    SceneManager.setBg('bg-img bg-s06');
-    this.startScene();
+    setTimeout(() => this.startScene(), 480);
   },
 
   startScene() {
@@ -4728,7 +4722,85 @@ Scenes.s07 = {
 // ============================================================
 // INIT
 // ============================================================
-function init() {
+const PRELOAD_IMAGES = [
+  'images/back1.webp', 'images/back2.webp', 'images/backmirror.webp',
+  'images/catch.webp', 'images/forset.webp', 'images/highlight.webp',
+  'images/it smell you.webp', 'images/l.webp', 'images/phone.webp',
+  'images/r.webp', 'images/shot_02_v2.webp', 'images/shot_03.webp',
+  'images/shot_04_v2.webp', 'images/shot_06.webp', 'images/shot_07.webp',
+  'images/shot_08_v2.webp', 'images/shot_10_v3.webp', 'images/shot_12_v2.webp',
+  'images/shot_13.webp', 'images/shot_14.webp', 'images/shot_15.webp',
+  'images/shot_16.webp', 'images/shot_19.webp', 'images/shot_forest_chop.webp',
+  'images/taxi.webp'
+];
+
+async function preloadAllImages() {
+  const loadingEl = document.createElement('div');
+  loadingEl.id = 'preloader-screen';
+  loadingEl.style.position = 'fixed';
+  loadingEl.style.inset = '0';
+  loadingEl.style.backgroundColor = '#000';
+  loadingEl.style.color = '#888';
+  loadingEl.style.display = 'flex';
+  loadingEl.style.flexDirection = 'column';
+  loadingEl.style.alignItems = 'center';
+  loadingEl.style.justifyContent = 'center';
+  loadingEl.style.zIndex = '9999999';
+  loadingEl.style.fontFamily = 'serif';
+  loadingEl.style.transition = 'opacity 0.5s ease-out';
+  
+  const textEl = document.createElement('div');
+  textEl.textContent = '载入中... 0%';
+  textEl.style.fontSize = '1.2rem';
+  textEl.style.marginBottom = '20px';
+  textEl.style.letterSpacing = '2px';
+  
+  const barContainer = document.createElement('div');
+  barContainer.style.width = '60%';
+  barContainer.style.maxWidth = '300px';
+  barContainer.style.height = '2px';
+  barContainer.style.background = '#222';
+  
+  const barFill = document.createElement('div');
+  barFill.style.width = '0%';
+  barFill.style.height = '100%';
+  barFill.style.background = '#888';
+  barFill.style.transition = 'width 0.1s';
+  
+  barContainer.appendChild(barFill);
+  loadingEl.appendChild(textEl);
+  loadingEl.appendChild(barContainer);
+  document.body.appendChild(loadingEl);
+
+  let loaded = 0;
+  const total = PRELOAD_IMAGES.length;
+
+  const loadImg = (src) => new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      loaded++;
+      const pct = Math.floor((loaded / total) * 100);
+      textEl.textContent = `载入中... ${pct}%`;
+      barFill.style.width = `${pct}%`;
+      resolve();
+    };
+    img.onerror = () => {
+      loaded++;
+      resolve();
+    };
+    img.src = src;
+  });
+
+  await Promise.all(PRELOAD_IMAGES.map(src => loadImg(src)));
+
+  await new Promise(r => setTimeout(r, 200));
+  loadingEl.style.opacity = '0';
+  await new Promise(r => setTimeout(r, 500));
+  loadingEl.remove();
+}
+
+async function init() {
+  await preloadAllImages();
   Dialogue.addClickListener();
   Smell.attachEvents();
   Notebook.init();
